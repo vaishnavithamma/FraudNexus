@@ -14,7 +14,7 @@ from catboost import CatBoostClassifier
 # LOAD DATASET
 # ===============================
 
-df = pd.read_csv("../data/creditcard.csv").sample(50000, random_state=42)
+df = pd.read_csv("data/creditcard.csv").sample(50000, random_state=42)
 
 print("Dataset loaded")
 
@@ -105,7 +105,7 @@ print(classification_report(y_test, cat_preds))
 # SAVE BEST MODEL
 # ===============================
 
-joblib.dump(xgb_model, "../models/fraud_model.pkl")
+joblib.dump(xgb_model, "models/fraud_model.pkl")
 
 print("Best model saved (XGBoost)")
 
@@ -114,7 +114,7 @@ print("Best model saved (XGBoost)")
 # SAVE FEATURE NAMES
 # ===============================
 
-with open("../models/features.json", "w") as f:
+with open("models/features.json", "w") as f:
     json.dump(list(X.columns), f)
 
 print("Feature names saved")

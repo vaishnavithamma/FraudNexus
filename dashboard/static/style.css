@@ -1,0 +1,88 @@
+body{
+background:#050c14;
+color:white;
+font-family:"Segoe UI";
+margin:0;
+}
+
+.header{
+padding:25px;
+border-bottom:1px solid #00f7ff33;
+}
+
+.metrics{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px;
+padding:30px;
+}
+
+.card{
+background:#0b1a2b;
+border-radius:12px;
+padding:25px;
+border:1px solid #00f7ff22;
+box-shadow:0 0 25px #00f7ff22;
+}
+
+.card.red h1{color:#ff5e5e}
+.card.yellow h1{color:#ffc857}
+.card.green h1{color:#00ff9d}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+gap:25px;
+padding:0 30px 40px;
+}
+
+.panel{
+background:#08121e;
+border-radius:12px;
+padding:20px;
+border:1px solid #00f7ff22;
+}
+
+#feed{
+list-style:none;
+padding:0;
+}
+
+#feed li{
+display:flex;
+justify-content:space-between;
+padding:10px;
+border-bottom:1px solid #00f7ff22;
+}
+
+.decision{
+padding:30px;
+}
+
+button{
+margin:10px;
+padding:10px 20px;
+background:#00f7ff;
+border:none;
+cursor:pointer;
+}
+button{
+
+padding:6px 12px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-weight:600;
+margin-left:8px;
+
+}
+
+button:first-child{
+background:#00ff9d;
+color:black;
+}
+
+button:last-child{
+background:#ff5e5e;
+color:white;
+}
