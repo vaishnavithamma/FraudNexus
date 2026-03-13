@@ -1,123 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-<title>FraudNexus AI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <title>FraudNexus AI</title>
+
+    <!-- Main Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 </head>
+
 
 <body>
 
-<div class="header">
+    <!-- HEADER -->
 
-<h1>FraudNexus AI</h1>
-<p>Real-Time Fraud Monitoring Command Center</p>
+    <header class="header">
 
-</div>
+        <h1>FraudNexus AI</h1>
+        <p>Real-Time Fraud Monitoring Command Center</p>
 
-
-<div class="metrics">
-
-<div class="card">
-<h1 id="approvedCount">0</h1>
-<span>Approved</span>
-</div>
-
-<div class="card red">
-<h1 id="blockedCount">0</h1>
-<span>Blocked</span>
-</div>
-
-<div class="card yellow">
-<h1 id="challengeCount">0</h1>
-<span>Challenges</span>
-</div>
-
-<div class="card green">
-<h1 id="latencyValue">0ms</h1>
-<span>Latency</span>
-</div>
-
-</div>
-
-
-<div class="grid">
-
-<div class="panel">
-
-<h3>🚨 Interceptor Feed</h3>
-
-<ul id="feed"></ul>
-
-</div>
-
-
-<div class="panel">
-
-<h3>Fraud Signals</h3>
-
-<canvas id="graph"></canvas>
-
-</div>
-
-
-<div class="panel">
-
-<h3>Latency Monitor</h3>
-
-<canvas id="latency"></canvas>
-
-</div>
-
-</div>
+    </header>
 
 
 
-<div class="decision">
+    <!-- KPI METRICS -->
 
-<h3>AI Transaction Decision</h3>
+    <section class="metrics">
 
-<div id="decisionBox">
+        <div class="card">
+            <h1 id="approvedCount">0</h1>
+            <span>Approved</span>
+        </div>
 
-<div class="decision-grid">
+        <div class="card red">
+            <h1 id="blockedCount">0</h1>
+            <span>Blocked</span>
+        </div>
 
-<div class="decision-info">
+        <div class="card yellow">
+            <h1 id="challengeCount">0</h1>
+            <span>Challenges</span>
+        </div>
 
-<p><b>Amount:</b> <span id="txAmount">$0</span></p>
-<p><b>Merchant:</b> <span id="txMerchant">---</span></p>
-<p><b>Country:</b> <span id="txCountry">---</span></p>
+        <div class="card green">
+            <h1 id="latencyValue">0ms</h1>
+            <span>Latency</span>
+        </div>
 
-</div>
+    </section>
 
 
-<div class="decision-ai">
 
-<div id="decisionLabel">WAITING</div>
+    <!-- MAIN DASHBOARD GRID -->
 
-<p>Risk Score: <span id="riskScore">0%</span></p>
+    <section class="grid">
 
-<canvas id="riskGauge"></canvas>
+        <!-- TRANSACTION FEED -->
 
-</div>
+        <div class="panel">
 
-</div>
+            <h3>🚨 Interceptor Feed</h3>
 
-</div>
+            <ul id="feed"></ul>
 
-</div>
+        </div>
 
-<div class="panel map-panel">
 
-<h3>🌍 Fraud Activity Map</h3>
 
-<div id="fraudMap"></div>
+        <!-- FRAUD SIGNAL CHART -->
 
-</div>
-<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+        <div class="panel">
+
+            <h3>Fraud Signals</h3>
+
+            <canvas id="graph"></canvas>
+
+        </div>
+
+
+
+        <!-- LATENCY MONITOR -->
+
+        <div class="panel">
+
+            <h3>Latency Monitor</h3>
+
+            <canvas id="latency"></canvas>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- AI DECISION PANEL -->
+
+    <section class="decision">
+
+        <h3>AI Transaction Decision</h3>
+
+        <div id="decisionBox">
+
+            <div class="decision-grid">
+
+                <!-- TRANSACTION INFO -->
+
+                <div class="decision-info">
+
+                    <p>
+                        <b>Amount:</b>
+                        <span id="txAmount">$0</span>
+                    </p>
+
+                    <p>
+                        <b>Merchant:</b>
+                        <span id="txMerchant">---</span>
+                    </p>
+
+                    <p>
+                        <b>Country:</b>
+                        <span id="txCountry">---</span>
+                    </p>
+
+                </div>
+
+
+
+                <!-- AI RESULT -->
+
+                <div class="decision-ai">
+
+                    <div id="decisionLabel">
+                        WAITING
+                    </div>
+
+                    <p>
+                        Risk Score:
+                        <span id="riskScore">0%</span>
+                    </p>
+
+                    <canvas id="riskGauge"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- FRAUD MAP -->
+
+    <section class="panel map-panel">
+
+        <h3>🌍 Fraud Activity Map</h3>
+
+        <div id="fraudMap"></div>
+
+    </section>
+
+
+
+    <!-- DASHBOARD SCRIPT -->
+
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+
 </body>
+
 </html>
