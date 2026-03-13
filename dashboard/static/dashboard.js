@@ -1,147 +1,335 @@
-/* counters */
+// =============================
+// GLOBAL VARIABLES
+// =============================
 
-function animateCounter(id,target){
+let approved = 0
+let blocked = 0
+let challenge = 0
 
-let el=document.getElementById(id)
-let count=0
+let map
+let fraudChart
+let latencyChart
+let riskGauge
 
-let interval=setInterval(()=>{
 
-count+=Math.ceil(target/40)
+// =============================
+// INITIALIZE MAP
+// =============================
 
-if(count>=target){
-count=target
-clearInterval(interval)
+function initMap(){
+
+map = L.map('fraudMap').setView([20,0],2)
+
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+).addTo(map)
+
 }
 
-el.innerText=count
 
-},20)
+// =============================
+// FRAUD MAP MARKER
+// =============================
+
+function addFraudLocation(lat,lng){
+
+let marker = L.circleMarker([lat,lng],{
+radius:8,
+color:"red",
+fillColor:"red",
+fillOpacity:0.7
+})
+
+marker.addTo(map)
+
+setTimeout(()=>{
+map.removeLayer(marker)
+},8000)
 
 }
 
-animateCounter("approvedCount",12911)
-animateCounter("blockedCount",406)
-animateCounter("challengeCount",160)
 
+// =============================
+// RADAR CHART (FRAUD SIGNALS)
+// =============================
 
+function initFraudChart(){
 
-/* latency */
+const ctx = document.getElementById("graph")
 
-const latencyChart=new Chart(document.getElementById("latency"),{
+fraudChart = new Chart(ctx,{
 
-type:'doughnut',
+type:"radar",
 
 data:{
-labels:["Latency","Remaining"],
+
+labels:[
+"Device Risk",
+"Geo Anomaly",
+"Velocity",
+"Proxy",
+"Card Behavior"
+],
+
 datasets:[{
-data:[0,200],
-backgroundColor:["#00f7ff","#09121c"]
+
+label:"Fraud Signals",
+
+data:[40,50,30,45,60],
+
+backgroundColor:"rgba(255,0,0,0.3)",
+
+borderColor:"red"
+
 }]
+
 },
 
-options:{cutout:'80%',plugins:{legend:{display:false}}}
+options:{
+responsive:true
+}
 
 })
 
-function updateLatency(){
+}
 
-let latency=Math.floor(Math.random()*120)+20
 
-document.getElementById("latencyValue").innerText=latency+"ms"
+// =============================
+// LATENCY CHART
+// =============================
 
-latencyChart.data.datasets[0].data=[latency,200-latency]
+function initLatencyChart(){
+
+const ctx = document.getElementById("latency")
+
+latencyChart = new Chart(ctx,{
+
+type:"line",
+
+data:{
+
+labels:[],
+
+datasets:[{
+
+label:"Latency (ms)",
+
+data:[],
+
+borderColor:"#00f7ff",
+
+tension:0.4
+
+}]
+
+}
+
+})
+
+}
+
+
+// =============================
+// RISK GAUGE
+// =============================
+
+function initRiskGauge(){
+
+const ctx = document.getElementById("riskGauge")
+
+riskGauge = new Chart(ctx,{
+
+type:"doughnut",
+
+data:{
+
+labels:["Risk","Safe"],
+
+datasets:[{
+
+data:[30,70],
+
+backgroundColor:["red","#00ff9d"]
+
+}]
+
+},
+
+options:{
+cutout:"70%"
+}
+
+})
+
+}
+
+
+// =============================
+// GENERATE RANDOM TRANSACTION
+// =============================
+
+function generateTransaction(){
+
+const merchants=[
+"Amazon",
+"Stripe",
+"Binance",
+"PayPal",
+"Apple Store",
+"Netflix",
+"Uber"
+]
+
+const countries=[
+"USA",
+"India",
+"UK",
+"Germany",
+"Singapore"
+]
+
+let amount=(Math.random()*5000).toFixed(2)
+
+let merchant=merchants[Math.floor(Math.random()*merchants.length)]
+
+let country=countries[Math.floor(Math.random()*countries.length)]
+
+let risk=Math.random()
+
+return{
+amount,
+merchant,
+country,
+risk
+}
+
+}
+
+
+// =============================
+// UPDATE METRICS
+// =============================
+
+function updateMetrics(){
+
+document.getElementById("approvedCount").innerText=approved
+document.getElementById("blockedCount").innerText=blocked
+document.getElementById("challengeCount").innerText=challenge
+
+let latency=Math.floor(Math.random()*200)+50
+
+document.getElementById("latencyValue").innerText=latency+" ms"
+
+latencyChart.data.labels.push("")
+
+latencyChart.data.datasets[0].data.push(latency)
+
+if(latencyChart.data.labels.length>10){
+
+latencyChart.data.labels.shift()
+latencyChart.data.datasets[0].data.shift()
+
+}
 
 latencyChart.update()
 
 }
 
-setInterval(updateLatency,2000)
 
+// =============================
+// UPDATE AI DECISION PANEL
+// =============================
 
+function updateDecision(tx){
 
-/* radar */
+document.getElementById("txAmount").innerText="$"+tx.amount
+document.getElementById("txMerchant").innerText=tx.merchant
+document.getElementById("txCountry").innerText=tx.country
 
-const ctx = document.getElementById("graph").getContext("2d")
+let score=Math.floor(tx.risk*100)
 
-const gradient = ctx.createRadialGradient(200,200,50,200,200,200)
+document.getElementById("riskScore").innerText=score+"%"
 
-gradient.addColorStop(0,"rgba(255,60,60,0.6)")
-gradient.addColorStop(1,"rgba(255,0,0,0.05)")
+riskGauge.data.datasets[0].data=[score,100-score]
 
-const fraudChart = new Chart(ctx,{
+riskGauge.update()
 
-type:'radar',
+let label=document.getElementById("decisionLabel")
 
-data:{
-labels:["Device Risk","Geo Anomaly","Proxy Use","Wallet Risk","Card Behavior"],
+label.className=""
 
-datasets:[{
-label:"Fraud Risk Signals",
+if(tx.risk>0.7){
 
-data:[35,60,50,70,45],
+label.innerText="BLOCKED"
+label.classList.add("blocked")
+blocked++
 
-backgroundColor:gradient,
-
-borderColor:"#ff3b3b",
-
-borderWidth:3,
-
-pointBackgroundColor:"#ff3b3b",
-
-pointBorderColor:"#ffffff",
-
-pointRadius:6,
-
-pointHoverRadius:10
-}]
-},
-
-options:{
-
-plugins:{
-legend:{
-labels:{
-color:"#ffffff",
-font:{size:14}
-}
-}
-},
-
-scales:{
-r:{
-
-min:0,
-max:100,
-
-grid:{
-color:"rgba(255,255,255,0.08)"
-},
-
-angleLines:{
-color:"rgba(255,255,255,0.15)"
-},
-
-pointLabels:{
-color:"#00f7ff",
-font:{size:14}
-},
-
-ticks:{
-color:"#aaa",
-backdropColor:"transparent"
-}
+addFraudLocation(
+(Math.random()*120)-60,
+(Math.random()*360)-180
+)
 
 }
+
+else if(tx.risk>0.4){
+
+label.innerText="CHALLENGE"
+label.classList.add("challenge")
+challenge++
+
+}
+
+else{
+
+label.innerText="APPROVED"
+label.classList.add("approved")
+approved++
+
 }
 
 }
 
-})
+
+// =============================
+// UPDATE FEED
+// =============================
+
+function updateFeed(tx){
+
+let feed=document.getElementById("feed")
+
+let li=document.createElement("li")
+
+li.innerHTML=`
+<span>$${tx.amount}</span>
+<span>${tx.merchant}</span>
+<span>${(tx.risk*100).toFixed(1)}%</span>
+`
+
+if(tx.risk>0.7){
+
+li.classList.add("fraud")
+
+}
+
+feed.prepend(li)
+
+if(feed.children.length>10){
+
+feed.removeChild(feed.lastChild)
+
+}
+
+}
+
+
+// =============================
+// UPDATE RADAR SIGNALS
+// =============================
 
 function updateFraudSignals(){
 
-let signals=[
+fraudChart.data.datasets[0].data=[
 
 Math.random()*100,
 Math.random()*100,
@@ -151,220 +339,40 @@ Math.random()*100
 
 ]
 
-fraudChart.data.datasets[0].data = signals
-
 fraudChart.update()
 
 }
 
-setInterval(updateFraudSignals,3000)
 
+// =============================
+// MAIN LOOP
+// =============================
 
+function runSimulation(){
 
-/* feed */
+let tx=generateTransaction()
 
-function loadFeed(){
+updateFeed(tx)
 
-const merchants=["Stripe","PayPal","Binance","Adyen"]
+updateDecision(tx)
 
-let html=""
+updateFraudSignals()
 
-for(let i=0;i<5;i++){
-
-let amount=(Math.random()*5000).toFixed(2)
-let prob=Math.random()
-
-let fraudClass=prob>0.8?"fraud":""
-
-let status=prob>0.8?
-`<span class="blocked">BLOCKED</span>`:
-`<span class="approved">APPROVED</span>`
-
-html+=`
-<li class="${fraudClass}">
-<span>$${amount} ${merchants[Math.floor(Math.random()*4)]}</span>
-${status}
-</li>
-`
-
-}
-
-document.getElementById("feed").innerHTML=html
-
-}
-
-setInterval(loadFeed,3000)
-loadFeed()
-
-
-
-/* decision simulation */
-
-function simulateDecision(){
-
-const merchants=["Stripe","PayPal","Binance","Adyen"]
-const countries=["USA","India","Brazil","China"]
-
-let amount=(Math.random()*5000).toFixed(2)
-let risk=Math.random()
-
-let decision=risk>0.8?"BLOCKED":"APPROVED"
-
-document.getElementById("txAmount").innerText="$"+amount
-document.getElementById("txMerchant").innerText=
-merchants[Math.floor(Math.random()*4)]
-
-document.getElementById("txCountry").innerText=
-countries[Math.floor(Math.random()*4)]
-
-document.getElementById("riskScore").innerText=
-Math.floor(risk*100)+"%"
-
-const label=document.getElementById("decisionLabel")
-
-label.innerText=decision
-
-label.className=decision==="BLOCKED"?"blocked":"approved"
-
-}
-
-setInterval(simulateDecision,4000)
-simulateDecision()
-
-
-
-/* risk gauge */
-
-new Chart(document.getElementById("riskGauge"),{
-
-type:'doughnut',
-
-data:{
-datasets:[{
-data:[90,10],
-backgroundColor:["red","#0f2c40"]
-}]
-},
-
-options:{cutout:'80%',plugins:{legend:{display:false}}}
-
-})
-/* =========================
-   FRAUD WORLD MAP
-========================= */
-
-const map = L.map('fraudMap',{
-
-zoomControl:false
-
-}).setView([20,0],2)
-
-L.tileLayer(
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-{
-attribution:'',
-opacity:0.6
-}
-).addTo(map)
-
-
-
-/* fraud locations */
-
-const fraudLocations=[
-[40.7128,-74.0060],   // New York
-[51.5074,-0.1278],    // London
-[28.6139,77.2090],    // Delhi
-[1.3521,103.8198],    // Singapore
-[-23.5505,-46.6333],  // Brazil
-[35.6895,139.6917]    // Tokyo
-]
-
-
-
-function addFraudMarker(lat,lng){
-
-let circle=L.circle([lat,lng],{
-
-color:'red',
-fillColor:'red',
-fillOpacity:0.5,
-radius:400000
-
-}).addTo(map)
-
-
-
-/* blinking effect */
-
-setInterval(()=>{
-
-circle.setStyle({
-
-fillOpacity:Math.random()
-
-})
-
-},800)
+updateMetrics()
 
 }
 
 
+// =============================
+// INITIALIZE DASHBOARD
+// =============================
 
-/* add markers */
+initMap()
 
-fraudLocations.forEach(loc=>{
+initFraudChart()
 
-addFraudMarker(loc[0],loc[1])
+initLatencyChart()
 
-})
+initRiskGauge()
 
-
-
-/* simulate new fraud attacks */
-
-function simulateFraud(){
-
-let lat=(Math.random()*180)-90
-let lng=(Math.random()*360)-180
-
-addFraudMarker(lat,lng)
-
-}
-
-setInterval(simulateFraud,6000)
-document.addEventListener("DOMContentLoaded", function(){
-
-const map = L.map('fraudMap').setView([20,0],2)
-
-L.tileLayer(
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-{
-maxZoom:18,
-attribution:''
-}
-).addTo(map)
-
-
-const fraudLocations=[
-[40.7128,-74.0060],
-[51.5074,-0.1278],
-[28.6139,77.2090],
-[1.3521,103.8198],
-[-23.5505,-46.6333],
-[35.6895,139.6917]
-]
-
-
-fraudLocations.forEach(loc=>{
-
-L.circle(loc,{
-color:'red',
-fillColor:'red',
-fillOpacity:0.6,
-radius:400000
-}).addTo(map)
-
-})
-
-})
+setInterval(runSimulation,2000)
