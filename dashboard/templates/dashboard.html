@@ -5,18 +5,17 @@
 
 <title>FraudNexus AI</title>
 
-<link rel="stylesheet"
-href="{{ url_for('static', filename='style.css') }}">
-
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 
 <body>
 
 <div class="header">
 
-<h2>FraudNexus AI</h2>
+<h1>FraudNexus AI</h1>
 <p>Real-Time Fraud Monitoring Command Center</p>
 
 </div>
@@ -25,17 +24,17 @@ href="{{ url_for('static', filename='style.css') }}">
 <div class="metrics">
 
 <div class="card">
-<h1 id="approvedCount">12911</h1>
+<h1 id="approvedCount">0</h1>
 <span>Approved</span>
 </div>
 
 <div class="card red">
-<h1 id="blockedCount">406</h1>
+<h1 id="blockedCount">0</h1>
 <span>Blocked</span>
 </div>
 
 <div class="card yellow">
-<h1 id="challengeCount">160</h1>
+<h1 id="challengeCount">0</h1>
 <span>Challenges</span>
 </div>
 
@@ -45,6 +44,7 @@ href="{{ url_for('static', filename='style.css') }}">
 </div>
 
 </div>
+
 
 <div class="grid">
 
@@ -77,20 +77,47 @@ href="{{ url_for('static', filename='style.css') }}">
 </div>
 
 
+
 <div class="decision">
 
-<h3>Transaction Decision</h3>
+<h3>AI Transaction Decision</h3>
 
 <div id="decisionBox">
 
-<p>Waiting for transaction analysis...</p>
+<div class="decision-grid">
+
+<div class="decision-info">
+
+<p><b>Amount:</b> <span id="txAmount">$0</span></p>
+<p><b>Merchant:</b> <span id="txMerchant">---</span></p>
+<p><b>Country:</b> <span id="txCountry">---</span></p>
+
+</div>
+
+
+<div class="decision-ai">
+
+<div id="decisionLabel">WAITING</div>
+
+<p>Risk Score: <span id="riskScore">0%</span></p>
+
+<canvas id="riskGauge"></canvas>
 
 </div>
 
 </div>
 
+</div>
 
+</div>
+
+<div class="panel map-panel">
+
+<h3>🌍 Fraud Activity Map</h3>
+
+<div id="fraudMap"></div>
+
+</div>
 <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
-
 </body>
 </html>
