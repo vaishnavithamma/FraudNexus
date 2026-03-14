@@ -50,7 +50,7 @@ setTimeout(()=>{
 }
 
 // =============================
-// RADAR CHART (FRAUD SIGNALS)
+// FRAUD SIGNAL CHART
 // =============================
 
 function initFraudChart(){
@@ -247,7 +247,6 @@ let score=Math.floor(tx.risk*100)
 document.getElementById("riskScore").innerText=score+"%"
 
 riskGauge.data.datasets[0].data=[score,100-score]
-
 riskGauge.update()
 
 let label=document.getElementById("decisionLabel")
@@ -313,33 +312,79 @@ function animateValue(id, value){
   el.textContent = value
 }
 // =============================
+// APPROVE / BLOCK FUNCTIONS
+// =============================
+
+function approveTx(btn){
+
+approved++
+
+if(challenge>0) challenge--
+
+updateMetrics()
+
+const actionArea = btn.parentElement
+actionArea.innerHTML = `<span class="approved-status">APPROVED</span>`
+
+}
+
+
+function blockTx(btn){
+
+blocked++
+
+if(challenge>0) challenge--
+
+updateMetrics()
+
+const actionArea = btn.parentElement
+actionArea.innerHTML = `<span class="blocked-status">BLOCKED</span>`
+
+}
+
+
+// =============================
 // UPDATE FEED
 // =============================
 
 function updateFeed(tx){
 
-let feed=document.getElementById("feed")
+let feed = document.getElementById("feed")
 
-let li=document.createElement("li")
+let li = document.createElement("li")
 
-li.innerHTML=`
+let action = ""
+
+if(tx.risk > 0.4 && tx.risk <= 0.7){
+
+action = `
+<div class="action-area">
+<button onclick="approveTx(this)">Approve</button>
+<button onclick="blockTx(this)">Block</button>
+</div>
+`
+
+} else {
+
+action = `<div class="action-area"></div>`
+
+}
+
+li.innerHTML = `
 <span>$${tx.amount}</span>
 <span>${tx.merchant}</span>
 <span>${(tx.risk*100).toFixed(1)}%</span>
+${action}
 `
 
-if(tx.risk>0.7){
-
+if(tx.risk > 0.7){
 li.classList.add("fraud")
-
 }
 
 feed.prepend(li)
 
 if(feed.children.length>10){
-
 feed.removeChild(feed.lastChild)
-
 }
 updateFraudGraph()
 }
@@ -492,11 +537,8 @@ function runSimulation(){
 let tx=generateTransaction()
 
 updateFeed(tx)
-
 updateDecision(tx)
-
 updateFraudSignals()
-
 updateMetrics()
 
 }
@@ -507,11 +549,8 @@ updateMetrics()
 // =============================
 
 initMap()
-
 initFraudChart()
-
 initLatencyChart()
-
 initRiskGauge()
 
 setInterval(runSimulation,2000)
