@@ -344,6 +344,38 @@ actionArea.innerHTML = `<span class="blocked-status">BLOCKED</span>`
 
 
 // =============================
+// APPROVE / BLOCK FUNCTIONS
+// =============================
+
+function approveTx(btn){
+
+approved++
+
+if(challenge>0) challenge--
+
+updateMetrics()
+
+const actionArea = btn.parentElement
+actionArea.innerHTML = `<span class="approved-status">APPROVED</span>`
+
+}
+
+
+function blockTx(btn){
+
+blocked++
+
+if(challenge>0) challenge--
+
+updateMetrics()
+
+const actionArea = btn.parentElement
+actionArea.innerHTML = `<span class="blocked-status">BLOCKED</span>`
+
+}
+
+
+// =============================
 // UPDATE FEED
 // =============================
 
@@ -365,11 +397,19 @@ action = `
 `
 
 } else {
+<<<<<<< updationsGgraph
 
 action = `<div class="action-area"></div>`
 
 }
 
+=======
+
+action = `<div class="action-area"></div>`
+
+}
+
+>>>>>>> main
 li.innerHTML = `
 <span>$${tx.amount}</span>
 <span>${tx.merchant}</span>
