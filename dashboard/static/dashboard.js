@@ -31,23 +31,23 @@ L.tileLayer(
 // FRAUD MAP MARKER
 // =============================
 
-function addFraudLocation(lat,lng){
+function addFraudLocation(coords){
 
-let marker = L.circleMarker([lat,lng],{
-radius:8,
+let marker = L.circleMarker(coords,{
+radius:3,
 color:"red",
 fillColor:"red",
-fillOpacity:0.7
+fillOpacity:0.7,
+className:"fraud-marker"
 })
 
 marker.addTo(map)
 
 setTimeout(()=>{
-map.removeLayer(marker)
+ map.removeLayer(marker)
 },8000)
 
 }
-
 
 // =============================
 // RADAR CHART (FRAUD SIGNALS)
@@ -212,29 +212,25 @@ risk
 
 function updateMetrics(){
 
-document.getElementById("approvedCount").innerText=approved
-document.getElementById("blockedCount").innerText=blocked
-document.getElementById("challengeCount").innerText=challenge
+animateValue("approvedCount", approved)
+animateValue("blockedCount", blocked)
+animateValue("challengeCount", challenge)
 
 let latency=Math.floor(Math.random()*200)+50
 
-document.getElementById("latencyValue").innerText=latency+" ms"
+document.getElementById("latencyValue").innerText = latency + " ms"
 
 latencyChart.data.labels.push("")
-
 latencyChart.data.datasets[0].data.push(latency)
 
-if(latencyChart.data.labels.length>10){
-
-latencyChart.data.labels.shift()
-latencyChart.data.datasets[0].data.shift()
-
+if(latencyChart.data.labels.length > 10){
+ latencyChart.data.labels.shift()
+ latencyChart.data.datasets[0].data.shift()
 }
 
 latencyChart.update()
 
 }
-
 
 // =============================
 // UPDATE AI DECISION PANEL
@@ -256,7 +252,7 @@ riskGauge.update()
 
 let label=document.getElementById("decisionLabel")
 
-label.className=""
+label.classList.remove("approved","blocked","challenge")
 
 if(tx.risk>0.7){
 
@@ -264,10 +260,7 @@ label.innerText="BLOCKED"
 label.classList.add("blocked")
 blocked++
 
-addFraudLocation(
-(Math.random()*120)-60,
-(Math.random()*360)-180
-)
+addFraudLocation(getLocation(tx.country))
 
 }
 
@@ -286,10 +279,39 @@ label.classList.add("approved")
 approved++
 
 }
+updateMetrics()
+}
+
+function runSimulation(){
+
+let tx = generateTransaction()
+
+updateFeed(tx)
+
+updateDecision(tx)
+
+updateFraudSignals()
+
+}
+function getLocation(country){
+
+const locations = {
+
+"USA": [37.0902, -95.7129],
+"India": [20.5937, 78.9629],
+"UK": [55.3781, -3.4360],
+"Germany": [51.1657, 10.4515],
+"Singapore": [1.3521, 103.8198]
 
 }
 
+return locations[country] || [20,0]
 
+}
+function animateValue(id, value){
+  const el = document.getElementById(id)
+  el.textContent = value
+}
 // =============================
 // UPDATE FEED
 // =============================
@@ -319,10 +341,127 @@ if(feed.children.length>10){
 feed.removeChild(feed.lastChild)
 
 }
-
+updateFraudGraph()
 }
 
+function updateFraudGraph(){
 
+const width = 420
+const height = 420
+
+d3.select("#fraudGraph svg").remove()
+
+const svg = d3.select("#fraudGraph")
+.append("svg")
+.attr("width",width)
+.attr("height",height)
+
+const rows = document.querySelectorAll("#feed li")
+
+const nodes = [
+ {id:"Transaction",label:"Transaction",type:"core"}
+]
+
+const links = []
+const merchantMap = {}
+
+/* collect merchant risk */
+
+rows.forEach(row => {
+
+ const spans = row.querySelectorAll("span")
+ const merchant = spans[1].innerText.trim()
+ const risk = parseFloat(spans[2].innerText)
+
+ if(!merchantMap[merchant]){
+  merchantMap[merchant] = { total:0, count:0 }
+ }
+
+ merchantMap[merchant].total += risk
+ merchantMap[merchant].count += 1
+
+})
+
+/* build unique merchant nodes */
+
+Object.keys(merchantMap).forEach(merchant => {
+
+ const avgRisk = merchantMap[merchant].total / merchantMap[merchant].count
+
+ let level="low"
+ if(avgRisk > 70) level="high"
+ else if(avgRisk > 40) level="medium"
+
+ nodes.push({
+  id: merchant,
+  label: merchant,
+  level: level,
+  risk: avgRisk
+ })
+
+ links.push({
+  source:"Transaction",
+  target:merchant,
+  distance: 70 + avgRisk
+ })
+
+})
+
+const simulation = d3.forceSimulation(nodes)
+.force("link", d3.forceLink(links)
+ .id(d=>d.id)
+ .distance(d=>d.distance)
+)
+.force("charge", d3.forceManyBody().strength(-250))
+.force("center", d3.forceCenter(width/2,height/2))
+
+const link = svg.selectAll("line")
+.data(links)
+.enter()
+.append("line")
+.style("stroke","#00f7ff66")
+
+const node = svg.selectAll("circle")
+.data(nodes)
+.enter()
+.append("circle")
+.attr("r",d=>d.type==="core"?18:10)
+.style("fill",d=>{
+ if(d.type==="core") return "#8b5cf6"
+ if(d.level==="high") return "#ff3b3b"
+ if(d.level==="medium") return "#ffc857"
+ return "#00f7ff"
+})
+.style("filter","drop-shadow(0 0 8px currentColor)")
+
+const label = svg.selectAll("text")
+.data(nodes)
+.enter()
+.append("text")
+.text(d=>d.label)
+.attr("fill","#ddd")
+.attr("font-size","11px")
+.attr("text-anchor","middle")
+
+simulation.on("tick",()=>{
+
+ link
+ .attr("x1",d=>d.source.x)
+ .attr("y1",d=>d.source.y)
+ .attr("x2",d=>d.target.x)
+ .attr("y2",d=>d.target.y)
+
+ node
+ .attr("cx",d=>d.x)
+ .attr("cy",d=>d.y)
+
+ label
+ .attr("x",d=>d.x)
+ .attr("y",d=>d.y+18)
+
+})
+
+}
 // =============================
 // UPDATE RADAR SIGNALS
 // =============================
