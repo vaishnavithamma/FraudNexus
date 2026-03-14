@@ -109,6 +109,22 @@ body{
     }
     
     /* TRANSACTION FEED */
+    .status{
+display:inline-block;
+width:90px;
+text-align:center;
+font-weight:bold;
+padding:6px 0;
+border-radius:6px;
+}
+
+.status.approved{
+color:#00ff9d;
+}
+
+.status.blocked{
+color:#ff3b3b;
+}
     
     #feed{
     list-style:none;
@@ -181,7 +197,25 @@ body{
     margin-bottom:10px;
     display:inline-block;
     }
-    
+    .action-area{
+display:flex;
+gap:8px;
+align-items:center;
+}
+
+.status-label{
+font-weight:bold;
+width:80px;
+text-align:center;
+}
+
+.approved-status{
+color:#00ff9d;
+}
+
+.blocked-status{
+color:#ff3b3b;
+}
     /* DECISION COLORS */
     
     #decisionLabel.blocked{
@@ -274,3 +308,28 @@ body{
     }
     
     }
+    #feed li{
+display:grid;
+grid-template-columns:120px 1fr 80px 140px;
+align-items:center;
+}
+
+.action-area{
+display:flex;
+gap:8px;
+justify-content:center;
+}
+
+.approved-status{
+color:#00ff9d;
+font-weight:bold;
+text-align:center;
+width:120px;
+}
+
+.blocked-status{
+color:#ff3b3b;
+font-weight:bold;
+text-align:center;
+width:120px;
+}
