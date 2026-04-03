@@ -1,183 +1,117 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>FraudNexus AI</title>
+<title>FraudNexus AI</title>
 
-    <!-- Main Styles -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <!-- Leaflet Map -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 </head>
 
-
 <body>
 
-    <!-- HEADER -->
+<header class="header">
+<h1>FraudNexus AI</h1>
+<p>Real-Time Fraud Monitoring Command Center</p>
+</header>
 
-    <header class="header">
+<section class="metrics">
 
-        <h1>FraudNexus AI</h1>
-        <p>Real-Time Fraud Monitoring Command Center</p>
+<div class="card">
+<h1 id="approvedCount">0</h1>
+<span>Approved</span>
+</div>
 
-    </header>
+<div class="card red">
+<h1 id="blockedCount">0</h1>
+<span>Blocked</span>
+</div>
 
+<div class="card yellow">
+<h1 id="challengeCount">0</h1>
+<span>Challenges</span>
+</div>
 
+<div class="card green">
+<h1 id="latencyValue">0ms</h1>
+<span>Latency</span>
+</div>
 
-    <!-- KPI METRICS -->
+</section>
 
-    <section class="metrics">
+<section class="grid">
 
-        <div class="card">
-            <h1 id="approvedCount">0</h1>
-            <span>Approved</span>
-        </div>
+<div class="panel">
+<h3>🚨 Interceptor Feed</h3>
+<ul id="feed"></ul>
+</div>
 
-        <div class="card red">
-            <h1 id="blockedCount">0</h1>
-            <span>Blocked</span>
-        </div>
+<div class="panel">
+<h3>Fraud Signals</h3>
+<canvas id="fraudChart"></canvas>
+<div id="fraudGraph"></div>
+</div>
 
-        <div class="card yellow">
-            <h1 id="challengeCount">0</h1>
-            <span>Challenges</span>
-        </div>
+<div class="panel">
+<h3>Latency Monitor</h3>
+<canvas id="latency"></canvas>
+</div>
 
-        <div class="card green">
-            <h1 id="latencyValue">0ms</h1>
-            <span>Latency</span>
-        </div>
+</section>
 
-    </section>
+<section class="decision">
 
+<h3>AI Transaction Decision</h3>
 
+<div id="decisionBox">
 
-    <!-- MAIN DASHBOARD GRID -->
+<div class="decision-grid">
 
-    <section class="grid">
+<div class="decision-info">
 
-        <!-- TRANSACTION FEED -->
+<p><b>Amount:</b> <span id="txAmount">$0</span></p>
+<p><b>Merchant:</b> <span id="txMerchant">---</span></p>
+<p><b>Country:</b> <span id="txCountry">---</span></p>
 
-        <div class="panel">
+</div>
 
-            <h3>🚨 Interceptor Feed</h3>
+<div class="decision-ai">
 
-            <ul id="feed"></ul>
+<div id="decisionLabel">WAITING</div>
 
-        </div>
+<p>Risk Score: <span id="riskScore">0%</span></p>
 
+<canvas id="riskGauge"></canvas>
 
+</div>
 
-        <!-- FRAUD SIGNAL CHART -->
+</div>
 
-        <div class="panel">
+</div>
 
-            <h3>Fraud Signals</h3>
+</section>
 
-            <div id="fraudGraph"></div>
+<section class="panel map-panel">
 
-        </div>
+<h3>🌍 Fraud Activity Map</h3>
 
+<div id="fraudMap"></div>
 
+</section>
 
-        <!-- LATENCY MONITOR -->
-
-        <div class="panel">
-
-            <h3>Latency Monitor</h3>
-
-            <canvas id="latency"></canvas>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- AI DECISION PANEL -->
-
-    <section class="decision">
-
-        <h3>AI Transaction Decision</h3>
-
-        <div id="decisionBox">
-
-            <div class="decision-grid">
-
-                <!-- TRANSACTION INFO -->
-
-                <div class="decision-info">
-
-                    <p>
-                        <b>Amount:</b>
-                        <span id="txAmount">$0</span>
-                    </p>
-
-                    <p>
-                        <b>Merchant:</b>
-                        <span id="txMerchant">---</span>
-                    </p>
-
-                    <p>
-                        <b>Country:</b>
-                        <span id="txCountry">---</span>
-                    </p>
-
-                </div>
-
-
-
-                <!-- AI RESULT -->
-
-                <div class="decision-ai">
-
-                    <div id="decisionLabel">
-                        WAITING
-                    </div>
-
-                    <p>
-                        Risk Score:
-                        <span id="riskScore">0%</span>
-                    </p>
-
-                    <canvas id="riskGauge"></canvas>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- FRAUD MAP -->
-
-    <section class="panel map-panel">
-
-        <h3>🌍 Fraud Activity Map</h3>
-
-        <div id="fraudMap"></div>
-
-    </section>
-
-
-
-    <!-- DASHBOARD SCRIPT -->
-
-    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 
 </body>
-
 </html>
